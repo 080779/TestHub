@@ -1,0 +1,54 @@
+﻿@page
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <script src="~/js/jquery.js"></script>
+    <script src="~/lib/signalr/dist/browser/signalr.js" charset="utf-8"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="row">&nbsp;</div>
+        <div class="row">
+            <div class="col-6">&nbsp;</div>
+            <div class="col-6">
+                User..........<input type="text" id="userInput" />
+                <br />
+                Message...<input type="text" id="messageInput" />
+                <input type="button" id="sendButton" value="Send Message" />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <hr />
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-6">&nbsp;</div>
+            <div class="col-6">
+                <ul id="messagesList"></ul>
+            </div>
+        </div>
+    </div>
+    <script>
+        var connection = new signalR.HubConnectionBuilder().withUrl("/myTestHub").build();
+
+        connection.on("onMessage", function (user, message) {
+            $("<li>" + user + " says " + message + "</li>").appendTo("#messagesList");
+        });
+
+        connection.start().catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        $("#sendButton").click(function () {
+            var user = $("#userInput").val();
+            var message = $("#messageInput").val();
+            connection.invoke("SendMessage", user, message).catch(function (err) {
+                return console.error(err.toString());
+            });
+        });
+    </script>
+</body>
+</html>
